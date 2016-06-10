@@ -1,0 +1,42 @@
+#!/usr/bin/env ruby
+
+require "json"
+require 'time'
+
+def azure_cli(cmd)
+  return JSON.parse(`azure storage blob #{cmd} -a #{@storage_account_name} -k #{@storage_access_key} --json`)
+end
+
+request = JSON.parse(STDIN.read)
+
+source = request.fetch("source")
+version_key = request["version"]
+requested_path = version_key ? version_key["path"] : nil
+
+@storage_account_name = source["storage_account_name"]
+@storage_access_key = source["storage_access_key"]
+@container = source["container"]
+@regexp = Regexp.new(source["regexp"])
+
+files = azure_cli("list #{@container}").map {|f| f['name']}
+matched_files = files.select {|f| f.match @regexp}
+
+names_and_versions = matched_files.map do |f|
+  version = f.match(@regexp)[1]
+  { "filename" => f, "version" => version  }
+end
+
+names_and_versions.reject! { |h| h["version"].match(/[^0-9\.]/) }
+names_and_versions.sort! { |a,b| Gem::Version.new(a["version"]) <=> Gem::Version.new(b["version"])  }
+
+if requested_path.nil?
+  # return latest
+  puts [ {"path" => names_and_versions.last["filename"]  } ].to_json
+elsif ! names_and_versions.find {|h| h["filename"] == requested_path }
+# if requested path can not find, return emtpy array
+  puts [].to_json
+else
+  index = names_and_versions.index {|h| h["filename"] == requested_path }
+  return_list = names_and_versions[index..-1].map {|h| {"path" => h["filename"]} }
+  puts return_list.to_json
+end

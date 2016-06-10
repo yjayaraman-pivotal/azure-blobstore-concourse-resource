@@ -1,0 +1,44 @@
+#!/usr/bin/env ruby
+
+require "json"
+
+def azure_cli(cmd)
+  return JSON.parse(`azure storage blob #{cmd} -a #{@storage_account_name} -k #{@storage_access_key} --json`)
+end
+
+request = JSON.parse(STDIN.read)
+
+source = request.fetch("source")
+file = request["params"]["file"]
+
+src_dir = ARGV[0]
+Dir.chdir src_dir
+src_files = Dir.glob(file)
+
+if src_files.size > 1
+  STDERR.puts "multiple files are matched for #{file}"
+  exit 1
+elsif src_files.size == 0
+  STDERR.puts "no matched file found for #{file}"
+  exit 1
+end
+
+src_file = src_files.first
+@storage_account_name = source["storage_account_name"]
+@storage_access_key = source["storage_access_key"]
+@container = source["container"]
+@regexp = source["regexp"]
+
+if @regexp.include?("/")
+  dst_dir = File.dirname(source["regexp"])
+  dst_path = File.join(dst_dir, File.basename(src_file))
+else
+  dst_path = File.basename(src_file)
+end
+
+response = azure_cli("upload --quiet --container #{@container} --blob #{dst_path} --file #{src_file}")
+metadata = []
+response.each_pair {|k,v| metadata << {"name"=> k.to_s, "value"=>v.to_s }  }
+puts JSON.dump({ "version" => { "path" => dst_path },
+                 "metadata" => metadata
+                })

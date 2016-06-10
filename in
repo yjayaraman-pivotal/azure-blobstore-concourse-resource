@@ -1,0 +1,35 @@
+#!/usr/bin/env ruby
+
+require "json"
+require 'time'
+require 'fileutils'
+
+def azure_cli(cmd)
+  return JSON.parse(`azure storage blob #{cmd} -a #{@storage_account_name} -k #{@storage_access_key} --json`)
+end
+
+request = JSON.parse(STDIN.read)
+
+source = request.fetch("source")
+requested_path = request["version"]["path"]
+@storage_account_name = source["storage_account_name"]
+@storage_access_key = source["storage_access_key"]
+@container = source["container"]
+@regexp = source["regexp"]
+
+dest_dir = ARGV[0]
+Dir.chdir(dest_dir)
+basename = File.basename(requested_path)
+response = azure_cli("download --quiet --container #{@container} --destination #{basename} --blob #{requested_path}")
+
+metadata = []
+response.each_pair {|k,v| metadata << {"name"=> k, "value"=>v.to_s }  }
+
+version = requested_path.match(@regexp)[1]
+File.open(File.join(dest_dir, "version"), "w+") do |f|
+  f.write("#{version}")
+end
+
+puts JSON.dump({ "version" => { "path" => requested_path},
+                 "metadata" => metadata
+                })
