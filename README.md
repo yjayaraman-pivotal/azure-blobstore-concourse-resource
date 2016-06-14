@@ -59,8 +59,6 @@ searches in.
 
 ## Example Configuration
 
-## Example
-
 The following concourse pipeline downloads the latest bosh-init release from a S3 bucket, and uploads to an Azure blobstore container in `bosh-init` folder, then downloads it again from that Azure blobstore container and uploads to another S3 bucket in `bosh` folder.
 
 ```
