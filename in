@@ -23,7 +23,7 @@ basename = File.basename(requested_path)
 response = azure_cli("download --quiet --container #{@container} --destination #{basename} --blob #{requested_path}")
 
 metadata = []
-response.each_pair {|k,v| metadata << {"name"=> k, "value"=>v.to_s }  }
+response.each_pair {|k,v| metadata << {"name"=> k.to_s, "value"=>v.to_s }  }
 
 version = requested_path.match(@regexp)[1]
 File.open(File.join(dest_dir, "version"), "w+") do |f|
