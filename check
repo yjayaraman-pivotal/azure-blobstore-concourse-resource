@@ -1,10 +1,15 @@
 #!/usr/bin/env ruby
 
-require "json"
-require 'time'
+require 'json'
+require 'open-uri'
 
 def azure_cli(cmd)
-  return JSON.parse(`azure storage blob #{cmd} -a #{@storage_account_name} -k #{@storage_access_key} --json`)
+  if @storage_access_key
+    auth_flag = " -a #{@storage_account_name} -k #{@storage_access_key} "
+  else
+    auth_flag = " -c BlobEndpoint=https://#{@storage_account_name}.blob.core.windows.net "
+  end
+  return JSON.parse(`azure storage blob #{cmd} #{auth_flag} --json`)
 end
 
 request = JSON.parse(STDIN.read)
@@ -14,11 +19,16 @@ version_key = request["version"]
 requested_path = version_key ? version_key["path"] : nil
 
 @storage_account_name = source["storage_account_name"]
+if @storage_account_name.nil?
+  STDERR.puts "storage_account_name is missing in source"
+  exit 1
+end
 @storage_access_key = source["storage_access_key"]
 @container = source["container"]
 @regexp = Regexp.new(source["regexp"])
 
-files = azure_cli("list #{@container}").map {|f| f['name']}
+azure_response = azure_cli("list #{@container}")
+files = azure_response.map {|f| f['name']}
 matched_files = files.select {|f| f.match @regexp}
 
 names_and_versions = matched_files.map do |f|
@@ -33,7 +43,7 @@ if requested_path.nil?
   # return latest
   puts [ {"path" => names_and_versions.last["filename"]  } ].to_json
 elsif ! names_and_versions.find {|h| h["filename"] == requested_path }
-# if requested path can not find, return emtpy array
+# if requested path not found, return empty array
   puts [].to_json
 else
   index = names_and_versions.index {|h| h["filename"] == requested_path }

@@ -1,0 +1,7 @@
+{
+  "source": {
+    "container": "con1",
+    "storage_account_name": "your_storage_account",
+    "regexp": "^bosh-init-([0-9.]+)"
+  }
+}

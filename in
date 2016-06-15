@@ -1,11 +1,15 @@
 #!/usr/bin/env ruby
 
-require "json"
-require 'time'
+require 'json'
 require 'fileutils'
 
 def azure_cli(cmd)
-  return JSON.parse(`azure storage blob #{cmd} -a #{@storage_account_name} -k #{@storage_access_key} --json`)
+  if @storage_access_key
+    auth_flag = " -a #{@storage_account_name} -k #{@storage_access_key} "
+  else
+    auth_flag = " -c BlobEndpoint=https://#{@storage_account_name}.blob.core.windows.net "
+  end
+  return JSON.parse(`azure storage blob #{cmd} #{auth_flag} --json`)
 end
 
 request = JSON.parse(STDIN.read)
@@ -21,7 +25,6 @@ dest_dir = ARGV[0]
 Dir.chdir(dest_dir)
 basename = File.basename(requested_path)
 response = azure_cli("download --quiet --container #{@container} --destination #{basename} --blob #{requested_path}")
-
 metadata = []
 response.each_pair {|k,v| metadata << {"name"=> k.to_s, "value"=>v.to_s }  }
 
