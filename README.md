@@ -7,9 +7,9 @@ version numbers.
 
 * `container`: *Required.* The name of the container.
 
-* `storage_account_name`: *Required.* The name of the Azure storage account that has the container.
+* `storage_account_name`: *Required.* The name of the Azure storage account that has the container. **The storage account must use Standard storage, NOT Premium.**
 
-* `storage_access_key`: *Required.* The Azure storage access key for the storage account.
+* `storage_access_key`: *Optional.* The Azure storage access key for the storage account. If the storage access key is not specified, the container must be public ("Container" access policy, NOT "Blob" or "Private"), and `out` will throw an error.
 
 * `regexp`: *Required.* The pattern to match filenames against within the Azure storage container. The first
   grouped match is used to extract the version. At least one capture group must be
