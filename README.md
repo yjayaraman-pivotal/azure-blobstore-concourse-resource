@@ -19,6 +19,7 @@ version numbers.
   Semantic versions, or just numbers, are supported. Accordingly, full regular
   expressions are supported, to specify the capture groups.
 
+* `environment`: *Optional.* The Azure environment. Valid values are `AzureCloud` and `AzureChinaCloud`. If `environment` is not specified, the value defaults to `AzureCloud`.
 
 ## Behavior
 
