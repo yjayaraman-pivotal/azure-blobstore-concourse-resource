@@ -1,16 +1,6 @@
 #!/usr/bin/env ruby
 
-require 'json'
-require 'open-uri'
-
-def azure_cli(cmd)
-  if @storage_access_key
-    auth_flag = " -a #{@storage_account_name} -k #{@storage_access_key} "
-  else
-    auth_flag = " -c BlobEndpoint=https://#{@storage_account_name}.blob.core.windows.net "
-  end
-  return JSON.parse(`azure storage blob #{cmd} #{auth_flag} --json`)
-end
+require_relative "azure-blobstore-concourse-resource-common"
 
 request = JSON.parse(STDIN.read)
 
@@ -19,13 +9,12 @@ version_key = request["version"]
 requested_path = version_key ? version_key["path"] : nil
 
 @storage_account_name = source["storage_account_name"]
-if @storage_account_name.nil?
-  STDERR.puts "storage_account_name is missing in source"
-  exit 1
-end
 @storage_access_key = source["storage_access_key"]
 @container = source["container"]
-@regexp = Regexp.new(source["regexp"])
+@environment = source["environment"]
+@regexp = source["regexp"]
+
+check_source
 
 azure_response = azure_cli("list #{@container}")
 files = azure_response.map {|f| f['name']}

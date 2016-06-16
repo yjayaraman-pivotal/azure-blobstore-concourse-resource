@@ -1,16 +1,7 @@
 #!/usr/bin/env ruby
 
-require 'json'
 require 'fileutils'
-
-def azure_cli(cmd)
-  if @storage_access_key
-    auth_flag = " -a #{@storage_account_name} -k #{@storage_access_key} "
-  else
-    auth_flag = " -c BlobEndpoint=https://#{@storage_account_name}.blob.core.windows.net "
-  end
-  return JSON.parse(`azure storage blob #{cmd} #{auth_flag} --json`)
-end
+require_relative 'azure-blobstore-concourse-resource-common'
 
 request = JSON.parse(STDIN.read)
 
@@ -19,7 +10,10 @@ requested_path = request["version"]["path"]
 @storage_account_name = source["storage_account_name"]
 @storage_access_key = source["storage_access_key"]
 @container = source["container"]
+@environment = source["environment"]
 @regexp = source["regexp"]
+
+check_source
 
 dest_dir = ARGV[0]
 Dir.chdir(dest_dir)

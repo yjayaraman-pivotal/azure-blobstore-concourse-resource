@@ -1,0 +1,9 @@
+{
+  "source": {
+    "container": "con1",
+    "storage_account_name": "your_storage_account_in_china",
+    "environment": "AzureChinaCloud",
+    "regexp": "bosh-init-([0-9.]+)"
+  },
+  "version": { "path": "bosh-init/bosh-init-0.0.94-linux-amd64" }
+}

@@ -1,10 +1,6 @@
 #!/usr/bin/env ruby
 
-require "json"
-
-def azure_cli(cmd)
-  return JSON.parse(`azure storage blob #{cmd} -a #{@storage_account_name} -k #{@storage_access_key} --json`)
-end
+require_relative 'azure-blobstore-concourse-resource-common'
 
 request = JSON.parse(STDIN.read)
 
@@ -26,12 +22,16 @@ end
 src_file = src_files.first
 @storage_account_name = source["storage_account_name"]
 @storage_access_key = source["storage_access_key"]
+@container = source["container"]
+@environment = source["environment"]
+@regexp = source["regexp"]
+
 if @storage_access_key.nil?
   STDERR.puts "PUT on public Azure blobstore container is not permited. Please provide storage_access_key."
   exit 1
 end
-@container = source["container"]
-@regexp = source["regexp"]
+
+check_source
 
 if @regexp.include?("/")
   dst_dir = File.dirname(source["regexp"])
