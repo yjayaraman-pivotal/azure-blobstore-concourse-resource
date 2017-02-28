@@ -1,3 +1,6 @@
+# Deprecated, Don't use it!
+
+
 # azure-blobstore-concourse-resource
 
 Versions objects in an Azure blobstore container, by pattern-matching filenames to identify
