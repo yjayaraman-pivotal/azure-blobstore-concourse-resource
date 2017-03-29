@@ -1,4 +1,7 @@
-# Deprecated, Don't use it!
+# Not actively mantained, Use it at your own risk.
+
+This concourse resource used to be working, but we are not activly maitain it right now.
+Any Azure change may break this resource, Use it at your own risk.
 
 
 # azure-blobstore-concourse-resource
