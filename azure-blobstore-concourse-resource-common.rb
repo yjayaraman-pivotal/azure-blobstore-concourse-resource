@@ -19,7 +19,7 @@ def check_source
   case @environment
   when  "AzureCloud" , nil
     @endpoint = "blob.core.windows.net"
-  when  "AzureUSGovernment
+  when  "AzureUSGovernment"
     @endpoint = "blob.core.usgovcloudapi.net"
   when "AzureChinaCloud"
     @endpoint = "blob.core.chinacloudapi.cn"
