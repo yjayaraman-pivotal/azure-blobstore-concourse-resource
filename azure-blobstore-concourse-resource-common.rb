@@ -24,7 +24,7 @@ def check_source
   when "AzureChinaCloud"
     @endpoint = "blob.core.chinacloudapi.cn"
   else
-    STDERR.puts "unsupported Azure environment #{@environment}. Should be AzureCloud or AzureChinaCloud"
+    STDERR.puts "unsupported Azure environment #{@environment}. Should be AzureCloud, AzureUSGovernment, or AzureChinaCloud"
     exit 1
   end
 end
