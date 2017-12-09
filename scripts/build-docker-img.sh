@@ -1,1 +1,1 @@
-docker build  -t cfcloudops/azure-blobstore-concourse-resource . && docker push cfcloudops/azure-blobstore-concourse-resource
+docker build  -t yadhav/azure-blobstore-concourse-resource . && docker push yadhav/azure-blobstore-concourse-resource
